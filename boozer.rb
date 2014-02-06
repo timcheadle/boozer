@@ -7,11 +7,10 @@ require 'csv'
 
 PRODUCT_URL = 'http://www.meckabc.com/Products'
 
-root_doc = Nokogiri::HTML(open(PRODUCT_URL))
-
-categories = root_doc.xpath('//select[contains(@id,"AlcoholType")]/option[@value != "-1"]').map { |node| node.attribute('value').value.strip }
-
 inventory = {}
+
+root_doc = Nokogiri::HTML(open(PRODUCT_URL))
+categories = root_doc.css('select[id *= "AlcoholType"] option:not([value = "-1"])').map { |node| node.attribute('value').value.strip }
 
 categories.sort.each do |category|
   url = URI::encode("http://www.meckabc.com/Products?t=#{category}&d=&c=")
@@ -19,7 +18,7 @@ categories.sort.each do |category|
 
   next unless doc
 
-  results = doc.css('table[id$="SearchResults"]')
+  results = doc.css('table[id *= "SearchResults"]')
 
   headers = results.css('th').map { |node| node.text.strip }
   rows    = results.css('tr')
