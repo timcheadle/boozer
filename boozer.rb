@@ -12,7 +12,18 @@ inventory = {}
 root_doc = Nokogiri::HTML(open(PRODUCT_URL))
 categories = root_doc.css('select[id *= "AlcoholType"] option:not([value = "-1"])').map { |node| node.attribute('value').value.strip }
 
+category_patterns = [
+  /bourbon/i,
+  /rye/i,
+]
+
+def match_any?(patterns, value)
+  patterns.map { |p| p.match(value) }.reject{ |v| v.nil? }.any?
+end
+
 categories.sort.each do |category|
+  next unless match_any?(category_patterns, category)
+
   url = URI::encode("http://www.meckabc.com/Products?t=#{category}&d=&c=")
   doc = Nokogiri::HTML(open(url))
 
