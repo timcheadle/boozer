@@ -1,0 +1,32 @@
+doctype html
+html
+  head
+    title "Boozer - Available Now"
+    link rel='stylesheet' href='http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css'
+
+  body
+    div.container
+      div.page-header
+        h1 Boozer - Available Now
+
+      table.table
+        thead
+          tr
+            th Sku
+            th Brand
+            th Type
+            th Description
+            th Size
+            th Price
+            th Stores
+        tbody
+          - for product in products do
+            tr
+              td.sku = product[:sku]
+              td.brand = product[:brand]
+              td.type = product[:type]
+              td.description = product[:description]
+              td.size = product[:size]
+              td.price = product[:price]
+              td.link
+                a href=product[:link] Stores

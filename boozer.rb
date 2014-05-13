@@ -4,6 +4,10 @@ require 'rubygems'
 require 'open-uri'
 require 'nokogiri'
 require 'csv'
+require 'slim'
+require 'tilt'
+require 'tempfile'
+require 'launchy'
 
 BASE_URL    = 'http://www.meckabc.com'
 PRODUCT_URL = "#{BASE_URL}/Products"
@@ -44,6 +48,7 @@ categories.sort.each do |category|
       link = BASE_URL + cells[6].css('a').attr('href')
 
       inventory[sku] = {
+        sku: sku,
         brand: brand,
         type: type,
         description: description,
@@ -55,16 +60,18 @@ categories.sort.each do |category|
   end
 end
 
-inventory.keys.sort.each do |sku|
-  product = inventory[sku]
+products = inventory.values.sort_by { |p| [ p[:type], p[:description] ] }
 
-  puts [
-    sku,
-    product[:brand],
-    product[:type],
-    product[:description],
-    product[:size],
-    product[:price],
-    product[:link],
-  ].to_csv
+template = Tilt.new('table.slim')
+output   = template.render(Object.new, products: products)
+
+file = Tempfile.new(%w(boozer .html))  # The dumb array forces the .html extension
+begin
+  file.write(output)
+
+  Launchy.open(file.path)
+  sleep 3 # Wait until the browser has opened the file
+ensure
+  file.close
+  file.unlink
 end
