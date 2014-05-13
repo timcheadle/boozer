@@ -5,7 +5,8 @@ require 'open-uri'
 require 'nokogiri'
 require 'csv'
 
-PRODUCT_URL = 'http://www.meckabc.com/Products'
+BASE_URL    = 'http://www.meckabc.com'
+PRODUCT_URL = "#{BASE_URL}/Products"
 
 inventory = {}
 
@@ -15,6 +16,7 @@ categories = root_doc.css('select[id *= "AlcoholType"] option:not([value = "-1"]
 category_patterns = [
   /bourbon/i,
   /rye/i,
+  /special packages/i,
 ]
 
 def match_any?(patterns, value)
@@ -39,6 +41,7 @@ categories.sort.each do |category|
 
     if cells.any?
       sku, brand, type, description, size, price = cells.map { |node| node.text.strip }
+      link = BASE_URL + cells[6].css('a').attr('href')
 
       inventory[sku] = {
         brand: brand,
@@ -46,6 +49,7 @@ categories.sort.each do |category|
         description: description,
         size: size,
         price: price,
+        link: link,
       }
     end
   end
@@ -61,5 +65,6 @@ inventory.keys.sort.each do |sku|
     product[:description],
     product[:size],
     product[:price],
+    product[:link],
   ].to_csv
 end
