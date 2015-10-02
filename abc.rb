@@ -19,6 +19,8 @@ def check_quantity(store)
 end
 
 (32..400).each do |store|
+  print "#{store} / 400\r"
+
   if $stores.has_key?(store)
     next
   end
@@ -42,6 +44,9 @@ end
   end
 end
 
+puts ""
+puts ""
+
 $stores.sort.each do |store, qty|
   response = begin
    RestClient.get "#{host}/#{store}", accept: :json
@@ -57,5 +62,17 @@ $stores.sort.each do |store, qty|
   zip     = info['Address']['Zipcode']
   phone   = info['PhoneNumber']['FormattedPhoneNumber']
 
-  p "#{store} - qty #{qty} - #{address}, #{city}, #{zip}, #{phone}"
+  puts "#{store} - qty #{qty} - #{address}, #{city}, #{zip}, #{phone}"
+end
+
+puts ""
+
+total = $stores.values.inject(:+)
+puts "Total quantity: #{total}"
+
+if total > 0
+  num_stores = $stores.keys.length
+  avg = total / num_stores
+
+  puts "Avg per store: #{avg}"
 end
