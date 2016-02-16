@@ -47,6 +47,8 @@ end
 puts ""
 puts ""
 
+$cities = Hash.new { |h,k| h[k] = [] }
+
 $stores.sort.each do |store, qty|
   response = begin
    RestClient.get "#{host}/#{store}", accept: :json
@@ -61,8 +63,16 @@ $stores.sort.each do |store, qty|
   city    = info['Address']['City']
   zip     = info['Address']['Zipcode']
   phone   = info['PhoneNumber']['FormattedPhoneNumber']
+  hours   = info['Hours']
 
-  puts "#{store} - qty #{qty} - #{address}, #{city}, #{zip}, #{phone}"
+  $cities[city] << "#{store} - qty #{qty} - #{address}, #{city}, #{zip}, #{phone}, #{hours}"
+end
+
+$cities.sort.each do |city, lines|
+  puts city
+  puts "-----"
+  puts lines
+  puts ""
 end
 
 puts ""
@@ -70,7 +80,7 @@ puts ""
 total = $stores.values.inject(:+)
 puts "Total quantity: #{total}"
 
-if total > 0
+if total != nil && total > 0
   num_stores = $stores.keys.length
   avg = total / num_stores
 
